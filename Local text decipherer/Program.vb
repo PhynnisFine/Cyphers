@@ -2088,7 +2088,7 @@ Module Program
         Console.WriteLine("")
         Console.WriteLine("Input ciphertext here:")
         starttext = Console.ReadLine().ToUpper
-        starttext = justnumbersandletters(starttext)
+        'starttext = justnumbersandletters(starttext)
 
         While True
             textinfo(starttext, expectedfreq)
