@@ -1957,6 +1957,115 @@ Module Program
 
     End Sub
 
+    Sub nihilist(starttext As String, expectedfreq As Single())
+
+        Console.WriteLine("Nihilist cipher:")
+        Console.WriteLine("")
+        starttext = justnumbersandletters(starttext)
+
+        Dim keylength As Integer
+        Dim currenttextpair As String
+        Dim currentpair As Integer
+        Dim currentshift As Integer
+        Dim freq(25) As Integer
+        Dim subtext As Integer
+        Dim currentchar As Char
+        Dim score As Single
+        Dim bestscore As Single
+        Dim bestscoreshift As Integer
+        Dim pairnumber As Integer
+        Dim currenttext As String
+        Dim plaintext As String
+        Dim gridkey As String
+        Dim key As String
+        Dim maxlength As Integer
+        Console.WriteLine("Input max keylength")
+        maxlength = Console.ReadLine()
+
+        Console.WriteLine("Input key, or a single letter to fill with alphabet apart from that letter")
+        gridkey = Console.ReadLine().ToUpper
+        If gridkey.Length = 1 Then
+            Select Case gridkey
+                Case "J"
+                    gridkey = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+                Case "Q"
+                    gridkey = "ABCDEFGHIJKLMNOPRSTUVWXYZ"
+                Case "X"
+                    gridkey = "ABCDEFGHIJKLMNOPQRSTUVWYZ"
+                Case "Z"
+                    gridkey = "ABCDEFGHIJKLMNOPQRSTUVWXY"
+            End Select
+        End If
+
+        For keylength = 3 To maxlength
+            Dim subtexts(keylength - 1) As String
+            Dim Shifts(keylength - 1) As Integer
+
+            Console.WriteLine(keylength)
+
+            For i = 0 To starttext.Length - 1 Step 2
+                currenttextpair = starttext.Substring(i, 2)
+                subtexts((i / 2) Mod keylength) += currenttextpair
+            Next i
+            Console.WriteLine(subtexts(0))
+
+            subtext = 0
+            Do
+                bestscore = 2
+                For currentshift = 11 To 55
+                    currenttext = ""
+                    freq = fillzeros(freq)
+
+                    For pair = 0 To subtexts(subtext).Length - 1 Step 2
+                        currentpair = starttext.Substring(pair, 2)
+                        currentpair = (currentpair - currentshift + 100) Mod 100
+                        If currentpair > 10 And currentpair < 56 Then
+                            currenttext += gridkey.Substring((Math.Truncate(currentpair / 10) - 1) * 5 + currentpair Mod 10, 1)
+                        End If
+                    Next pair
+
+                    For k = 0 To currenttext.Length - 1
+                        currentchar = currenttext.Substring(k, 1)
+                        freq(Asc(currentchar) - 65) += 1
+                    Next
+
+                    score = comparefreq(freq, currenttext.Length, expectedfreq)
+
+                    If score < bestscore Then
+                        bestscore = score
+                        bestscoreshift = currentshift
+                    End If
+
+                Next currentshift
+
+                Shifts(subtext) = bestscoreshift
+                subtext += 1
+                Console.WriteLine(bestscoreshift & ", " & bestscore)
+            Loop Until subtext = keylength Or bestscore > 0.5
+
+            If subtext = keylength And bestscore < 0.5 Then
+                pairnumber = 0
+                plaintext = ""
+                For i = 0 To starttext.Length - 1 Step 2
+                    currentpair = starttext.Substring(i, 2)
+                    currentpair = (currentpair - Shifts(pairnumber Mod keylength) + 100) Mod 100
+                    If currentpair > 10 And currentpair < 56 Then
+                        plaintext += gridkey.Substring((Math.Truncate(currentpair / 10) - 1) * 5 + currentpair Mod 10, 1)
+                    End If
+                Next i
+
+                Console.WriteLine(plaintext)
+                Console.WriteLine("")
+                key = ""
+
+                For i = 0 To keylength
+                    key += key.Substring((Math.Truncate(Shifts(i) / 10) - 1) * 5 + Shifts(i) Mod 10, 1)
+                Next i
+                Console.WriteLine("Key = " & key)
+            End If
+        Next keylength
+
+    End Sub
     Function compareprofile(expectedfreq() As Single, letterfreq() As Integer, letterlength As Integer)    'look at frequency profile to check for simple substitution cipher
 
         Dim placeholder As Single = 0
@@ -2105,6 +2214,7 @@ Module Program
             Console.WriteLine("G - Polybius cipher")
             Console.WriteLine("H - Playfair cipher (beta)")
             Console.WriteLine("I - Vigenere autokey cipher")
+            Console.WriteLine("J - Nihilist cipher")
             Console.WriteLine("Z - New cipher")
             myinput = Console.ReadLine().ToUpper
         Console.WriteLine("")
@@ -2140,6 +2250,8 @@ Module Program
                     playfair(starttext, expectedfreq)
                 Case "I"
                     vigenereautokey(starttext, expectedfreq)
+                Case "J"
+                    nihilist(starttext, expectedfreq)
                 Case "Z"
                     newcipher(starttext, expectedfreq)
             End Select
