@@ -2007,8 +2007,6 @@ Module Program
                 currenttextpair = starttext.Substring(i, 2)
                 subtexts((i / 2) Mod keylength) += currenttextpair
             Next i
-            Console.WriteLine(subtexts(0))
-
             subtext = 0
             Do
                 bestscore = 2
@@ -2017,10 +2015,10 @@ Module Program
                     freq = fillzeros(freq)
 
                     For pair = 0 To subtexts(subtext).Length - 1 Step 2
-                        currentpair = starttext.Substring(pair, 2)
+                        currentpair = subtexts(subtext).Substring(pair, 2)
                         currentpair = (currentpair - currentshift + 100) Mod 100
                         If currentpair > 10 And currentpair < 56 Then
-                            currenttext += gridkey.Substring((Math.Truncate(currentpair / 10) - 1) * 5 + currentpair Mod 10, 1)
+                            currenttext += gridkey.Substring((Math.Truncate(currentpair / 10) - 1) * 5 + (currentpair Mod 10) - 1, 1)
                         End If
                     Next pair
 
@@ -2050,18 +2048,20 @@ Module Program
                     currentpair = starttext.Substring(i, 2)
                     currentpair = (currentpair - Shifts(pairnumber Mod keylength) + 100) Mod 100
                     If currentpair > 10 And currentpair < 56 Then
-                        plaintext += gridkey.Substring((Math.Truncate(currentpair / 10) - 1) * 5 + currentpair Mod 10, 1)
+                        plaintext += gridkey.Substring((Math.Truncate(currentpair / 10) - 1) * 5 + (currentpair Mod 10) - 1, 1)
                     End If
+                    pairnumber += 1
                 Next i
 
                 Console.WriteLine(plaintext)
                 Console.WriteLine("")
                 key = ""
 
-                For i = 0 To keylength
-                    key += key.Substring((Math.Truncate(Shifts(i) / 10) - 1) * 5 + Shifts(i) Mod 10, 1)
+                For i = 0 To keylength - 1
+                    key += gridkey.Substring((Math.Truncate(Shifts(i) / 10) - 1) * 5 + (Shifts(i) Mod 10) - 1, 1)
                 Next i
                 Console.WriteLine("Key = " & key)
+                Console.ReadLine()
             End If
         Next keylength
 
